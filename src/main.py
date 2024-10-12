@@ -2,10 +2,14 @@ from nicegui import ui
 
 class Demo:
     def __init__(self):
-        self.target = ""
+        self.target = "1.1.1.1"  # Set default value to '1.1.1.1'
 
     def ping(self):
         ui.notify(f"Pinging {self.target}")
+
+    def on_input_change(self, e):
+        if e.key == 'Enter':
+            self.ping()
 
 demo = Demo()
 
@@ -15,7 +19,7 @@ with ui.column().classes('w-full items-center'):
     with ui.card().classes('nice-py w-full max-w-[80%]'):
         with ui.row().classes('items-center w-full'):
             ui.label('Target').classes('mr-2')
-            ui.input().bind_value(demo, 'target').classes('flex-grow mr-2')
+            ui.input(value=demo.target, on_change=demo.on_input_change).classes('flex-grow mr-2')
             ui.button('Ping', on_click=demo.ping)
 
 ui.run()
