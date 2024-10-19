@@ -12,8 +12,7 @@ class PingApp:
     def get_command(self):
         if os.name == "nt":  # Windows
             return ["ping", "-n", "4", self.target]
-        else:  # Unix-based (Linux/Mac)
-            return ["ping", "-c", "4", self.target]
+        return ["ping", "-c", "4", self.target]
 
     async def ping(self):
         self.terminal_output = ""  # Clear the previous terminal output
