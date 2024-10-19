@@ -39,7 +39,9 @@ class Demo:
         # Update the target with the input value and call ping on Enter
         self.target = e.value
         if e.key == "Enter":
-            asyncio.create_task(self.ping())  # Use asyncio to run the ping command asynchronously
+            asyncio.create_task(
+                self.ping()
+            )  # Use asyncio to run the ping command asynchronously
 
     def update_terminal(self):
         # Safely update the textarea inside a UI context
@@ -47,7 +49,9 @@ class Demo:
             self.terminal.value = self.terminal_output
             self.terminal.update()
             # Add JavaScript to scroll to the bottom of the textarea
-            ui.run_javascript('document.querySelector("textarea").scrollTop = document.querySelector("textarea").scrollHeight')
+            ui.run_javascript(
+                'document.querySelector("textarea").scrollTop = document.querySelector("textarea").scrollHeight'
+            )
 
 
 demo = Demo()
