@@ -1,3 +1,6 @@
+import asyncio
+import os
+
 from nicegui import ui
 
 
@@ -6,20 +9,45 @@ class Demo:
         self.target = "1.1.1.1"  # Set default value to '1.1.1.1'
         self.terminal_output = ""  # New attribute to store terminal output
 
-    def ping(self):
-        ui.notify(f"Pinging {self.target}")
-        # Simulate terminal output
-        self.terminal_output += f"Pinging {self.target}...\n"
-        self.update_terminal()
+    async def ping(self):
+        self.terminal_output = ""  # Clear the previous terminal output
+
+        # Create a background process to ping the target
+        # Adjust command depending on the OS
+        if os.name == "nt":  # Windows
+            arguments = ["ping", "-n", "4", self.target]
+        else:  # Unix-based (Linux/Mac)
+            arguments = ["ping", "-c", "4", self.target]
+
+        # Run the ping command asynchronously
+        process = await asyncio.create_subprocess_exec(
+            *arguments, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+
+        # Read the output asynchronously
+        while True:
+            line = await process.stdout.readline()
+            if not line:
+                break
+            self.terminal_output += line.decode()
+            self.update_terminal()
+
+        # Handle any errors if needed
+        await process.wait()
 
     def on_input_change(self, e):
+        # Update the target with the input value and call ping on Enter
+        self.target = e.value
         if e.key == "Enter":
-            self.ping()
+            asyncio.create_task(
+                self.ping()
+            )  # Use asyncio to run the ping command asynchronously
 
     def update_terminal(self):
-        # Update the terminal textarea
-        self.terminal.value = self.terminal_output
-        self.terminal.update()
+        # Safely update the textarea inside a UI context
+        with self.terminal:
+            self.terminal.value = self.terminal_output
+            self.terminal.update()
 
 
 demo = Demo()
@@ -33,7 +61,7 @@ with ui.column().classes("w-full items-center"):
             ui.input(value=demo.target, on_change=demo.on_input_change).classes(
                 "flex-grow mr-2"
             )
-            ui.button("Ping", on_click=demo.ping)
+            ui.button("Ping", on_click=lambda: asyncio.create_task(demo.ping()))
 
     # New card for terminal-like textarea
     with ui.card().classes("nice-py w-full max-w-[80%] mt-4"):
