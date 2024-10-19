@@ -17,7 +17,7 @@ class Demo:
         if os.name == "nt":  # Windows
             arguments = ["ping", "-n", "4", self.target]
         else:  # Unix-based (Linux/Mac)
-            arguments = ["ping", "-c", "4", self.target]
+            arguments = ["ping", "-c", "16", self.target]
 
         # Run the ping command asynchronously
         process = await asyncio.create_subprocess_exec(
@@ -39,15 +39,15 @@ class Demo:
         # Update the target with the input value and call ping on Enter
         self.target = e.value
         if e.key == "Enter":
-            asyncio.create_task(
-                self.ping()
-            )  # Use asyncio to run the ping command asynchronously
+            asyncio.create_task(self.ping())  # Use asyncio to run the ping command asynchronously
 
     def update_terminal(self):
         # Safely update the textarea inside a UI context
         with self.terminal:
             self.terminal.value = self.terminal_output
             self.terminal.update()
+            # Add JavaScript to scroll to the bottom of the textarea
+            ui.run_javascript('document.querySelector("textarea").scrollTop = document.querySelector("textarea").scrollHeight')
 
 
 demo = Demo()
