@@ -1,3 +1,3 @@
-#!.venv/bin/python3
-
+#! /bin/bash
+source .venv/bin/activate
 python3 ./src/main.py

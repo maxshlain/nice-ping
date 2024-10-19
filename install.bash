@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 # create new virtual environment with uv and python 3.12
 uv venv --python 3.12
