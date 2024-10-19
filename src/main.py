@@ -4,22 +4,21 @@ import os
 from nicegui import ui
 
 
-class Demo:
+class PingApp:
     def __init__(self):
         self.target = "1.1.1.1"  # Set default value to '1.1.1.1'
         self.terminal_output = ""  # New attribute to store terminal output
 
+    def get_command(self):
+        if os.name == "nt":  # Windows
+            return ["ping", "-n", "4", self.target]
+        else:  # Unix-based (Linux/Mac)
+            return ["ping", "-c", "4", self.target]
+
     async def ping(self):
         self.terminal_output = ""  # Clear the previous terminal output
 
-        # Create a background process to ping the target
-        # Adjust command depending on the OS
-        if os.name == "nt":  # Windows
-            arguments = ["ping", "-n", "4", self.target]
-        else:  # Unix-based (Linux/Mac)
-            arguments = ["ping", "-c", "16", self.target]
-
-        # Run the ping command asynchronously
+        arguments = self.get_command()
         process = await asyncio.create_subprocess_exec(
             *arguments, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
@@ -54,7 +53,7 @@ class Demo:
             )
 
 
-demo = Demo()
+app = PingApp()
 
 # Create a container for centering and width control
 with ui.column().classes("w-full items-center"):
@@ -62,16 +61,16 @@ with ui.column().classes("w-full items-center"):
     with ui.card().classes("nice-py w-full max-w-[80%]"):
         with ui.row().classes("items-center w-full"):
             ui.label("Target").classes("mr-2")
-            ui.input(value=demo.target, on_change=demo.on_input_change).classes(
+            ui.input(value=app.target, on_change=app.on_input_change).classes(
                 "flex-grow mr-2"
             )
-            ui.button("Ping", on_click=lambda: asyncio.create_task(demo.ping()))
+            ui.button("Ping", on_click=lambda: asyncio.create_task(app.ping()))
 
     # New card for terminal-like textarea
     with ui.card().classes("nice-py w-full max-w-[80%] mt-4"):
-        demo.terminal = ui.textarea(label="Terminal Output").classes(
+        app.terminal = ui.textarea(label="Terminal Output").classes(
             "w-full h-40 font-mono bg-gray-100 text-gray-800"
         )
-        demo.terminal.read_only = True
+        app.terminal.read_only = True
 
 ui.run()
