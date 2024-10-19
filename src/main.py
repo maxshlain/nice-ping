@@ -12,7 +12,7 @@ class PingApp:
     def get_command(self):
         if os.name == "nt":  # Windows
             return ["ping", "-n", "4", self.target]
-        return ["ping", "-c", "4", self.target]
+        return ["ping", "-c", "14", self.target]
 
     async def ping(self):
         self.terminal_output = ""  # Clear the previous terminal output
@@ -27,7 +27,7 @@ class PingApp:
             line = await process.stdout.readline()
             if not line:
                 break
-            self.terminal_output += line.decode()
+            self.terminal_output += line.decode() + "<br>"  # Add line break for HTML
             self.update_terminal()
 
         # Handle any errors if needed
@@ -42,13 +42,12 @@ class PingApp:
             )  # Use asyncio to run the ping command asynchronously
 
     def update_terminal(self):
-        # Safely update the textarea inside a UI context
+        # Safely update the div inside a UI context
         with self.terminal:
-            self.terminal.value = self.terminal_output
-            self.terminal.update()
-            # Add JavaScript to scroll to the bottom of the textarea
+            self.terminal.set_content(self.terminal_output)
+            # Add JavaScript to scroll to the bottom of the div
             ui.run_javascript(
-                'document.querySelector("textarea").scrollTop = document.querySelector("textarea").scrollHeight'
+                'document.querySelector(".terminal-output").scrollTop = document.querySelector(".terminal-output").scrollHeight'
             )
 
 
@@ -65,11 +64,10 @@ with ui.column().classes("w-full items-center"):
             )
             ui.button("Ping", on_click=lambda: asyncio.create_task(app.ping()))
 
-    # New card for terminal-like textarea
+    # New card for terminal-like div
     with ui.card().classes("nice-py w-full max-w-[80%] mt-4"):
-        app.terminal = ui.textarea(label="Terminal Output").classes(
-            "w-full h-40 font-mono bg-gray-100 text-gray-800"
+        app.terminal = ui.html().classes(
+            "terminal-output w-full h-40 font-mono bg-gray-100 text-gray-800 overflow-y-auto p-2"
         )
-        app.terminal.read_only = True
 
 ui.run()
