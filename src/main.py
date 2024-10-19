@@ -19,6 +19,7 @@ class Demo:
     def update_terminal(self):
         # Update the terminal textarea
         self.terminal.value = self.terminal_output
+        self.terminal.update()
 
 
 demo = Demo()
